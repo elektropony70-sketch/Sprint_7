@@ -5,8 +5,6 @@ import org.example.client.CourierClient;
 import org.example.model.Courier;
 import io.qameta.allure.Description;
 import io.qameta.allure.junit4.DisplayName;
-import io.restassured.RestAssured;
-import io.restassured.response.ValidatableResponse;
 import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Before;
@@ -22,28 +20,20 @@ public class CreateCourierTest {
 
     @Before
     public void setUp() {
-        RestAssured.baseURI = "https://qa-scooter.praktikum-services.ru";
         courierClient = new CourierClient();
         login = "courier_" + UUID.randomUUID().toString().substring(0, 8);
     }
 
     @After
     public void tearDown() {
-
-        if (courierId != 0) {
-            try {
+        try {
+            var loginResponse = courierClient.login(Map.of("login", login, "password", password));
+            if (loginResponse.extract().statusCode() == 200) {
+                courierId = loginResponse.extract().path("id");
                 courierClient.delete(courierId);
-            } catch (Exception e) {
-                System.err.println("Очистка: Не удалось удалить курьера по ID: " + e.getMessage());
             }
-        } else {
-            try {
-                ValidatableResponse loginResponse = courierClient.login(Map.of("login", login, "password", password));
-                if (loginResponse.extract().statusCode() == 200) {
-                    int id = loginResponse.extract().path("id");
-                    courierClient.delete(id);
-                }
-            } catch (Exception ignored) {}
+        } catch (Exception e) {
+            System.err.println("Очистка: Не удалось удалить курьера: " + e.getMessage());
         }
     }
 
@@ -56,9 +46,6 @@ public class CreateCourierTest {
         courierClient.create(courier)
                 .statusCode(201)
                 .body("ok", Matchers.equalTo(true));
-
-        ValidatableResponse loginResponse = courierClient.login(Map.of("login", login, "password", password));
-        courierId = loginResponse.extract().path("id");
     }
 
     @Test
@@ -67,9 +54,8 @@ public class CreateCourierTest {
     public void shouldNotCreateDuplicateCourier() {
         Courier courier = new Courier(login, password, "Alex");
 
-        courierClient.create(courier).statusCode(201);
 
-        courierId = courierClient.login(Map.of("login", login, "password", password)).extract().path("id");
+        courierClient.create(courier).statusCode(201);
 
         courierClient.create(courier)
                 .statusCode(409)

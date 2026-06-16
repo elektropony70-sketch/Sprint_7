@@ -2,7 +2,6 @@ package org.example;
 
 import io.qameta.allure.Description;
 import io.qameta.allure.junit4.DisplayName;
-import io.restassured.RestAssured;
 import org.example.client.CourierClient;
 import org.example.model.Courier;
 import org.hamcrest.Matchers;
@@ -20,11 +19,8 @@ public class LoginCourierTest {
 
     @Before
     public void setUp() {
-        RestAssured.baseURI = "https://qa-scooter.praktikum-services.ru";
         courierClient = new CourierClient();
-
         login = "courier_" + UUID.randomUUID().toString().substring(0, 8);
-
         Courier courier = new Courier(login, password, "AuthUser");
         courierClient.create(courier).statusCode(201);
     }
@@ -50,7 +46,6 @@ public class LoginCourierTest {
 
     @Test
     @DisplayName("Успешный логин курьера")
-    @Description("Проверяем, что сервер возвращает 200 ОК и непустой ID курьера")
     public void shouldLoginSuccessfully() {
         courierId = courierClient.login(Map.of("login", login, "password", password))
                 .statusCode(200)

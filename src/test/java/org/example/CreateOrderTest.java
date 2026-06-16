@@ -2,7 +2,6 @@ package org.example;
 
 import io.qameta.allure.Description;
 import io.qameta.allure.junit4.DisplayName;
-import io.restassured.RestAssured;
 import org.example.client.OrderClient;
 import org.example.model.Order;
 import org.hamcrest.Matchers;
@@ -35,7 +34,6 @@ public class CreateOrderTest {
 
     @Before
     public void setUp() {
-        RestAssured.baseURI = "https://qa-scooter.praktikum-services.ru";
         orderClient = new OrderClient();
     }
 

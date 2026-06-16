@@ -1,7 +1,8 @@
 package org.example.client;
 
 import io.qameta.allure.Step;
-import io.qameta.allure.restassured.AllureRestAssured; // Добавили импорт
+import io.qameta.allure.restassured.AllureRestAssured;
+import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.response.ValidatableResponse;
 import org.example.model.Courier;
@@ -15,7 +16,7 @@ public class CourierClient extends BaseClient {
     @Step("Создать курьера: {courier}")
     public ValidatableResponse create(Courier courier) {
         return given()
-
+                .baseUri(RestAssured.baseURI)
                 .filter(new AllureRestAssured())
                 .contentType(ContentType.JSON)
                 .body(courier)
@@ -27,7 +28,8 @@ public class CourierClient extends BaseClient {
     @Step("Логин курьера в системе: {credentials}")
     public ValidatableResponse login(Map<String, String> credentials) {
         return given()
-                .filter(new AllureRestAssured()) // Добавили логирование
+                .baseUri(RestAssured.baseURI)
+                .filter(new AllureRestAssured())
                 .contentType(ContentType.JSON)
                 .body(credentials)
                 .when()
@@ -38,7 +40,8 @@ public class CourierClient extends BaseClient {
     @Step("Удалить курьера с ID: {courierId}")
     public ValidatableResponse delete(int courierId) {
         return given()
-                .filter(new AllureRestAssured()) // Добавили логирование
+                .baseUri(RestAssured.baseURI)
+                .filter(new AllureRestAssured())
                 .contentType(ContentType.JSON)
                 .when()
                 .delete(COURIER_PATH + "/" + courierId)
